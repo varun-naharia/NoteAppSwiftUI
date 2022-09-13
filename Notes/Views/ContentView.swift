@@ -10,12 +10,13 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
+    @State var order: Bool = true
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Notes.timestamp, ascending: true)],
         animation: .default)
     private var notes: FetchedResults<Notes>
     @State private var showingAddView = false
+    
     var body: some View {
         NavigationView {
             List {
@@ -35,10 +36,19 @@ struct ContentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddView.toggle()
-                    } label: {
-                        Label("Add Note", systemImage: "plus.circle")
+                    HStack{
+                        Button{
+                            sort()
+                        }
+                    label: {
+                        Label("Sort", systemImage: "line.horizontal.3.decrease.circle")
+                    }
+                        Button {
+                            showingAddView.toggle()
+                        } label: {
+                            Label("Add Note", systemImage: "plus.circle")
+                        }
+                        
                     }
                 }
                 
@@ -52,6 +62,17 @@ struct ContentView: View {
         .accentColor(Color(.label))
     }
     
+    private func sort(){
+        order = !order
+        if(order){
+            self.notes.sortDescriptors = [SortDescriptor(\Notes.timestamp, order: .forward)]
+        }
+        else{
+            self.notes.sortDescriptors = [SortDescriptor(\Notes.timestamp, order: .reverse)]
+        }
+        
+        
+    }
     
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
